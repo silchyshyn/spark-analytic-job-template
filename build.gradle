@@ -1,0 +1,42 @@
+group 'org.trendyol'
+version '1.0-SNAPSHOT'
+ext {
+    sparkVersion = '3.1.1'
+    scalaVersion = '2.12.10'
+    scalaBinaryVersion = '2.12'
+}
+
+subprojects {
+
+    if (project.name.endsWith('-job')) {
+        apply plugin: 'scala'
+        apply plugin: 'java-library'
+
+        sourceCompatibility = 1.8
+
+        repositories {
+            mavenCentral()
+            mavenLocal()
+        }
+
+        sourceSets {
+            main.scala.srcDirs = ["src/main/scala"]
+            main.java.srcDirs = []
+            test.scala.srcDirs = ["src/test/scala"]
+            test.java.srcDirs = []
+        }
+
+        dependencies {
+            implementation "org.scala-lang:scala-library:${project.scalaVersion}"
+            implementation "org.apache.spark:spark-core_${project.scalaBinaryVersion}:${project.sparkVersion}"
+            implementation "org.apache.spark:spark-sql_${project.scalaBinaryVersion}:${project.sparkVersion}"
+
+            implementation "com.github.scopt:scopt_${project.scalaBinaryVersion}:3.7.1"
+            implementation 'com.typesafe:config:1.4.1'
+            implementation "com.github.pureconfig:pureconfig_${project.scalaBinaryVersion}:0.16.0"
+            implementation "com.typesafe.scala-logging:scala-logging_${project.scalaBinaryVersion}:3.9.2"
+            implementation "org.scalatest:scalatest_${project.scalaBinaryVersion}:3.2.7"
+            implementation "org.scalatestplus:junit-4-13_${project.scalaBinaryVersion}:3.2.7.0"
+        }
+    }
+}
