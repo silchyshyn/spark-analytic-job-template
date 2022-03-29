@@ -6,8 +6,7 @@ import org.apache.spark.sql.types.DataType
 import pureconfig.{ConfigReader, ConfigSource}
 
 
-case class StructuringConfig(//sourceDatasetSchemasLocation: String,
-                             sourceDatasets: Seq[DatasetConf],
+case class StructuringConfig(sourceDatasets: Seq[DatasetConf],
                              sourcePartitions: Int,
                              sourceFileFormat: String,
                              targetFileFormat: String,
@@ -19,8 +18,7 @@ case class StructuringConfig(//sourceDatasetSchemasLocation: String,
 case class DatasetConf
 (
   dataset: String,
-  datasetSchema: Map[String, DataType],
-  //mapping: Map[String, String]
+  datasetSchema: Map[String, DataType]
 )
 
 object StructuringConfig {

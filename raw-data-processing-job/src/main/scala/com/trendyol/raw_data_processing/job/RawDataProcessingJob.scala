@@ -35,21 +35,21 @@ class RawDataProcessingJob(
         $"salesAggregate.avg_sales_amount_last_5_selling_days",
         $"topSellingLocation.location".as("top_selling_location"))
 
-    problem1ResultDF//.coalesce(1)
+    problem1ResultDF.coalesce(1)
       .write.mode("overwrite")
       .format(config.targetFileFormat)
       .save(config.targetPath)
 
     val problem2ResultDF = calculatePriceBehavior(ordersCleaned).drop("previous_price")
 
-    problem2ResultDF//.coalesce(1)
+    problem2ResultDF.coalesce(1)
       .write.mode("overwrite")
       .format(config.targetFileFormat)
       .save(config.targetPriceBehaviorPath)
 
 
     val productsDF = spark.read.schema(buildDataFrameSchema(productsDatasetConf.datasetSchema)).json(productSourceFile)
-    productsDF//.coalesce(1)
+    productsDF.coalesce(1)
       .write.mode("overwrite")
       .format(config.targetFileFormat)
       .save(config.targetProductsPath)

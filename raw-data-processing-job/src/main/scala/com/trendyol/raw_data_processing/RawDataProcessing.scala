@@ -5,7 +5,6 @@ import com.typesafe.config.ConfigFactory
 import com.trendyol.raw_data_processing.job.RawDataProcessingJob
 import org.apache.spark.sql.SparkSession
 
-import java.io.File
 
 object RawDataProcessing {
   val appName: String = this.getClass.getSimpleName.replace("$", "")
@@ -14,15 +13,10 @@ object RawDataProcessing {
                      local: Boolean = false,
                      ordersSourceFile: String = null,
                      productSourceFile: String = null,
-                     commonConfigFile: String = null)
+                     commonConfigFile: Option[String] = None)
 
   private val parser = new scopt.OptionParser[JobArgs](appName) {
     head(appName)
-    opt[String]('f', "config-file")
-      .optional()
-      .action((f, c) => c.copy(configFile = Some(f)))
-      .valueName("<config-file>")
-      .text("Job configuration file")
     opt[String]("orders-source-file")
       .required()
       .action((ordersSourceFile, c) => c.copy(ordersSourceFile = ordersSourceFile))
@@ -38,22 +32,15 @@ object RawDataProcessing {
       .action((_, c) => c.copy(local = true))
       .valueName("<local-mode>")
       .text("Set to run with local[*] master")
-    opt[String]('f', "common-config-file")
-      .required()
-      .action((f, c) => c.copy(commonConfigFile = f))
-      .valueName("<common-config-file>")
-      .text("Job common configuration file")
   }
 
   def main(args: Array[String]): Unit = parser.parse(args, JobArgs()) match {
     case Some(arguments) =>
       val appName = s"raw-data-processing"
-      val config = arguments.configFile
-        .map(new File(_))
-        .map(ConfigFactory.parseFile)
-        .getOrElse(ConfigFactory.empty())
-      val commonConfig = new File(arguments.commonConfigFile)
-      val rawAppConfig = StructuringConfig.from(ConfigFactory.parseFile(commonConfig), config)
+      val classLoader = getClass.getClassLoader
+      val config = ConfigFactory.parseResources(classLoader,"configuration/job-specs/source-structuring.conf")
+      val commonConfig = ConfigFactory.parseResources(classLoader, "configuration/job-specs/common.conf")
+      val rawAppConfig = StructuringConfig.from(commonConfig, config)
       val spark = if (arguments.local) {
         SparkSession.builder()
           .appName(appName)
