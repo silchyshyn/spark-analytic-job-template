@@ -1,3 +1,4 @@
 rootProject.name = 'trendyol-platform-data-products'
 include 'raw-data-processing-job'
+include 'raw-data-stream-processing-job'
 

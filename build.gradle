@@ -37,6 +37,27 @@ subprojects {
             implementation "com.typesafe.scala-logging:scala-logging_${project.scalaBinaryVersion}:3.9.2"
             implementation "org.scalatest:scalatest_${project.scalaBinaryVersion}:3.2.7"
             implementation "org.scalatestplus:junit-4-13_${project.scalaBinaryVersion}:3.2.7.0"
+
+
+            // https://mvnrepository.com/artifact/org.apache.flink/flink-core
+            implementation 'org.apache.flink:flink-core:1.14.3'
+            // https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-scala
+            implementation  "org.apache.flink:flink-streaming-scala_${project.scalaBinaryVersion}:1.14.3"
+            implementation "org.apache.flink:flink-scala_${project.scalaBinaryVersion}:1.14.3"
+            implementation "org.apache.flink:flink-connector-kafka_${project.scalaBinaryVersion}:1.14.3"
+            // https://mvnrepository.com/artifact/org.apache.flink/flink-clients
+            implementation "org.apache.flink:flink-clients_${project.scalaBinaryVersion}:1.14.3"
+
+
+            /// https://mvnrepository.com/artifact/org.json4s/json4s-native
+            implementation "org.json4s:json4s-native_${project.scalaBinaryVersion}:4.0.3"
+            // https://mvnrepository.com/artifact/com.typesafe.play/play-json
+            implementation "com.typesafe.play:play-json_${project.scalaBinaryVersion}:2.9.2"
+
+
+
+
+
         }
     }
 }
