@@ -23,15 +23,18 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CREATE_TOPICS: "orders:1:1,products:1:1:compact"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      #KAFKA_CREATE_TOPICS: "orders:1:1,products:1:1:compact"
 
   producer:
-    image: docker-data-producer:1.0
+    image: data-producer:1.0
     container_name: producer
     depends_on:
       - kafka
+    build:
+      dockerfile: ./producer/Dockerfile
     environment:
-      BOOTSTRAP_SERVERS: localhost:29092
+      BOOTSTRAP_SERVERS: localhost:9092
       BATCH_INTERVAL: 100.millisecond
       BATCH_SIZE: 100
       ORDERS_SOURCE_PATH: /raw-data/orders.json

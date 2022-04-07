@@ -8,20 +8,20 @@ import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.connector.kafka.source.KafkaSource
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer
 import org.json4s.{DefaultFormats, JValue}
-import org.json4s.native.JsonMethods
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.api.windowing.triggers.ContinuousProcessingTimeTrigger
 import org.apache.spark.sql.catalyst.plans.logical.Aggregate
+import org.json4s.jackson.JsonMethods
 
 
 object RawDataStreaming {
 
 
-  implicit val typeInfo = TypeInformation.of(classOf[(String)])
+  implicit val typeInfo: TypeInformation[String] = TypeInformation.of(classOf[String])
   implicit lazy val jValue = TypeInformation.of(classOf[JValue])
-  implicit  val orders = TypeInformation.of(classOf[Order])
+  implicit  val typeInfoOrder = TypeInformation.of(classOf[Order])
   implicit lazy val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
 
@@ -44,17 +44,17 @@ object RawDataStreaming {
       .flatMap( rawData => JsonMethods.parse(rawData).toOption)
      .map(_.extract[Order])
 
-/*   val keyedJsonStream = messageStream.keyBy(_.location)
+   val keyedJsonStream = messageStream.keyBy(_.location)
       .window(TumblingEventTimeWindows.of(Time.minutes(5)))
-     .aggregate(new AggregateFunction[Orders, Set[String], Long] {
+     .aggregate(new AggregateFunction[Order, Set[String], Long] {
       def createAccumulator(): Set[String] = Set.empty[String]
-      def add( value: Orders, accumulator: Set[String]) = accumulator + value.seller_id
+      def add( value: Order, accumulator: Set[String]) = accumulator + value.seller_id
       def getResult(accumulator: Set[String]) = accumulator.size
       def merge(a:Set[String] , b:Set[String])= a ++ b
-    })*/
+    })
 
 
-    messageStream.print.setParallelism(1)
+    keyedJsonStream.print//.setParallelism(1)
     env.execute("KafkaSource")
   }
 }
