@@ -6,11 +6,21 @@ ext {
     scalaBinaryVersion = '2.12'
 }
 
+buildscript {
+    repositories {
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0'
+    }
+}
+
 subprojects {
 
     if (project.name.endsWith('-job')) {
         apply plugin: 'scala'
         apply plugin: 'java-library'
+        apply plugin: 'com.github.johnrengelman.shadow'
 
         sourceCompatibility = 1.8
 
@@ -52,11 +62,51 @@ subprojects {
 
             //implementation "org.json4s:json4s-native_${project.scalaBinaryVersion}:4.0.3"
             implementation "com.typesafe.play:play-json_${project.scalaBinaryVersion}:2.9.2"
+        }
 
+/*        afterEvaluate { p ->
+            publishing {
+                repositories {
+                    maven {
+                        name = 'LocalPublish'
+                        url = layout.buildDirectory.dir(publishFolder)
+                    }
+                }
+                publications {
+                    mavenJava(MavenPublication) {
+                        artifactId = jar.archiveBaseName.get()
+                        from components.java
+                    }
+                }
+            }
+        }*/
+    }
 
+    if (project.name.endsWith('-job')) {
 
+        shadowJar {
+            zip64 = true
+            archiveClassifier.set('')
+            mergeServiceFiles()
+            relocate 'com.google.protobuf', 'shadow.com.google.protobuf'
+            relocate 'shapeless', 'shadow.shapeless'
+        }
 
+        task job {
+            dependsOn 'shadowJar'
 
+            doLast {
+                def moduleName = project.parent.name
+                def fullName = moduleName.substring(0, moduleName.lastIndexOf('-') + 1) + project.name
+                def jobDir = "job/" + fullName
+                delete("$buildDir/job")
+                mkdir("$buildDir/$jobDir")
+
+                copy {
+                    from layout.buildDirectory.dir("libs")
+                    into layout.buildDirectory.dir("$jobDir")
+                }
+            }
         }
     }
 }

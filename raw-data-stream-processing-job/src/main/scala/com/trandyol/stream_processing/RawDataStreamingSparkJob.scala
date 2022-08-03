@@ -1,11 +1,17 @@
 package com.trandyol.stream_processing
 
+import com.typesafe.scalalogging.LazyLogging
+import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions._
+import org.apache.spark.sql.functions.{approx_count_distinct, col, count, current_timestamp, from_json, lit, struct, to_json, window}
 import org.apache.spark.sql.types.{DoubleType, StringType, StructType}
 
-object RawDataProcessingSparkStreaming {
-  def main(args: Array[String]): Unit = {
+import scala.tools.nsc.Properties
+
+class RawDataStreamingSparkJob extends Serializable with LazyLogging{
+
+  def process(): Unit = {
+
     val spark = SparkSession
       .builder
       .appName("Trendyol Streaming")
@@ -53,5 +59,4 @@ object RawDataProcessingSparkStreaming {
       .start()
       .awaitTermination()
   }
-
 }

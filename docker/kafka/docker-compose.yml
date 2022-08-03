@@ -1,4 +1,11 @@
-version: '2'
+version: '2.1'
+
+networks:
+  kafka-network:
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -8,6 +15,9 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 22181:2181
+    networks:
+      kafka-network:
+        ipv4_address: 172.19.0.2
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -24,20 +34,25 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      #KAFKA_CREATE_TOPICS: "orders:1:1,products:1:1:compact"
+    networks:
+      kafka-network:
+        ipv4_address: 172.19.0.3
 
   producer:
-    image: data-producer:1.0
+    image: data-producer:1.1
     container_name: producer
     depends_on:
       - kafka
-    build:
-      dockerfile: ./producer/Dockerfile
+#    build:
+#      dockerfile: ./producer/Dockerfile
     environment:
-      BOOTSTRAP_SERVERS: localhost:9092
+      BOOTSTRAP_SERVERS: 172.19.0.3:9092
       BATCH_INTERVAL: 100.millisecond
       BATCH_SIZE: 100
       ORDERS_SOURCE_PATH: /raw-data/orders.json
       ORDERS_TOPIC: orders
       PRODUCTS_SOURCE_PATH: /raw-data/products.json
       PRODUCTS_TOPIC: products
+    networks:
+      kafka-network:
+        ipv4_address: 172.19.0.4
